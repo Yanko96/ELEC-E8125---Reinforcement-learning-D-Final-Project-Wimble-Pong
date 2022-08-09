@@ -2,19 +2,21 @@
 This is an example on how to use the two player Wimblepong environment with one
 agent and the SimpleAI
 """
-import statistics
-from queue import PriorityQueue
-import matplotlib.pyplot as plt
-from random import randint
-import torch.nn.functional as F
-import pickle
-import gym
-import numpy as np
 import argparse
-import wimblepong
-from agent.agent import Agent 
-import torch
+import pickle
+import statistics
 import warnings
+from queue import PriorityQueue
+from random import randint
+
+import gym
+import matplotlib.pyplot as plt
+import numpy as np
+import torch
+import torch.nn.functional as F
+import wimblepong
+from agent.agent import Agent
+
 warnings.filterwarnings("ignore")
 
 parser = argparse.ArgumentParser()

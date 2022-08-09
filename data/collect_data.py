@@ -2,6 +2,7 @@
 This is an example on how to use the two player Wimblepong environment
 with two SimpleAIs playing against each other
 """
+import os
 import matplotlib.pyplot as plt
 from random import randint
 import pickle
@@ -10,12 +11,19 @@ import numpy as np
 import argparse
 import wimblepong
 from PIL import Image
+import warnings
+warnings.filterwarnings("ignore")
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--headless", action="store_true", help="Run in headless mode")
 parser.add_argument("--fps", type=int, help="FPS for rendering", default=30)
 parser.add_argument("--scale", type=int, help="Scale of the rendered game", default=1)
+parser.add_argument("--num_data", type=int, help="Amount of Generated Data", default=10000)
+parser.add_argument("--data_path", type=str, help="Path of Generated Data", default="dataset/")
 args = parser.parse_args()
+
+# create dir if needed
+os.makedirs(args.data_path, exist_ok=True)
 
 # Make the environment
 env = gym.make("WimblepongVisualMultiplayer-v0")
@@ -45,12 +53,10 @@ for i in range(0,episodes):
         # Step the environment and get the rewards and new observations
         (ob1, ob2), (rew1, rew2), done, info = env.step((action1, action2))
         img = Image.fromarray(ob1)
-        img.save("./dataset/test/{}.png".format(count))
+        img.save(os.path.join(args.data_path, "{}.png".format(count)))
         count += 1
-        if count >= 4000:
+        if count >= args.num_data:
             break
-        #img = Image.fromarray(ob2)
-        #img.save("ob2.png")
         # Count the wins
         if rew1 == 10:
             win1 += 1
@@ -59,3 +65,5 @@ for i in range(0,episodes):
         if done:
             observation= env.reset()
             print("episode {} over. Broken WR: {:.3f}".format(i, win1/(i+1)))
+    if count >= args.num_data:
+        break

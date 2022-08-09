@@ -1,12 +1,14 @@
 import os
-import torch
-import numpy as np
-from skimage import io
+
 import matplotlib.pyplot as plt
+import numpy as np
+import torch
 import torch.nn.functional as F
-from torch.utils.data import Dataset, DataLoader
+from agent.agent import RESNET_VAE, VAE
+from skimage import io
+from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms, utils
-from agent.agent import VAE, RESNET_VAE
+
 
 def loss_fn(recon_x, x, mu, logvar):
     # BCE = F.binary_cross_entropy(recon_x, x, reduction='sum')

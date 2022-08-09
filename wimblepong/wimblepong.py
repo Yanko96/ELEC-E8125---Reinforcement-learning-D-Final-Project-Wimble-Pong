@@ -325,9 +325,9 @@ class Wimblepong(gym.core.Env):
 
         # Reflect the ball based on the collision and who touched the ball last
         # to prevent multiple collisions with one player
-        if p1_collide and self.ball.last_touch is not 1:
+        if p1_collide and self.ball.last_touch != 1:
             self._reflect(self.player1)
-        if p2_collide and self.ball.last_touch is not 2:
+        if p2_collide and self.ball.last_touch != 2:
             self._reflect(self.player2)
 
     def _step_check_victory(self):

@@ -4,15 +4,15 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="wimblepong",
+    name="a2c-wimblepong",
     version="1.0",
-    author="Karol Arndt, Oliver Struckmeier",
-    author_email="karol.arndt@aalto.fi, oliver.struckmeier@aalto.fi",
-    description="A two player gym environment similar to the official single player Pong-v0",
+    author="Yangzhe Kong",
+    author_email="yangzhe.kong@hotmail.com",
+    description="A2C Solution to Wimblepong Game",
     long_description=long_description,
     long_description_content_type="text/markdown",
     license="MIT",
-    url="https://github.com/aalto-intelligent-robotics/wimblepong",
+    url="https://github.com/Yanko96/ELEC-E8125---Reinforcement-learning-D-Final-Project-Wimble-Pong",
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
