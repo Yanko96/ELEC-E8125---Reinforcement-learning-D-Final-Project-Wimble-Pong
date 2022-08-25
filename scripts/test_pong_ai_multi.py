@@ -2,18 +2,14 @@
 This is an example on how to use the two player Wimblepong environment
 with two SimpleAIs playing against each other
 """
-import argparse
-import pickle
-import warnings
-from random import randint
-
-import gym
 import matplotlib.pyplot as plt
+from random import randint
+import pickle
+import gym
 import numpy as np
+import argparse
 import wimblepong
 from PIL import Image
-
-warnings.filterwarnings("ignore")
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--headless", action="store_true", help="Run in headless mode")

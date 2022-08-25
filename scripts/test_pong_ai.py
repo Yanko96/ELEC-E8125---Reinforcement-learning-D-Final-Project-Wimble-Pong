@@ -35,10 +35,10 @@ player = wimblepong.SimpleAi(env, player_id)
 # Housekeeping
 states = []
 win1 = 0
+env.reset()
 
 for i in range(0,episodes):
     done = False
-    env.reset()
     while not done:
         # action1 is zero because in this example no agent is playing as player 0
         action1 = 0 #player.get_action()
@@ -51,7 +51,7 @@ for i in range(0,episodes):
         if not args.headless:
             env.render()
         if done:
-            observation= env.reset()
+            observation = env.reset()
             plt.close()  # Hides game window
             if args.housekeeping:
                 plt.plot(states)
