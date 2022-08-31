@@ -11,6 +11,7 @@ A CNN-VAE is pre-trained on collected observations of the wimblepong environment
 <img src="imgs/reconstructed_4.png" width="400">
 
 # A2C Agent
-The encoder of the Agent is loaded from the checkpoint of the encoder of the pre-trained CNN-VAE. Then the agent is trained by A2C algorithm with entropy loss to encourage exploration. With pre-trained VAE loaded as the encoder, the convergence of the agent is accelerated as the following figures show.
+The encoder of the Agent is loaded from the checkpoint of the encoder of the pre-trained CNN-VAE. Then the agent is trained by A2C algorithm with entropy loss to encourage exploration. With pre-trained VAE loaded as the encoder, the convergence of the agent is accelerated as the following figures show (green paddel is the agent).
 <div align=center><img src="imgs/visual_pretrained_cnnvae_return.png" width=600></div>
 <div align=center><img src="imgs/visual_pretrained_cnnvae_win_rate.png" width=600></div>
+<div align=center><img src="imgs/visual_agent_test.gif"></div>
