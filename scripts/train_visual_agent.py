@@ -77,7 +77,7 @@ episodes = 100000
 # Define the player
 player_id = 1
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-player = Agent(3, 32, 128, 2, "vae_19.pkl").to(device)
+player = Agent(3, 32, 128, 2, args.pretrain).to(device)
 if args.pretrain:
     optimizer = torch.optim.Adam(
         [
