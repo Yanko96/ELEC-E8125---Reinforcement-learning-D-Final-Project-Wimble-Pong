@@ -23,6 +23,7 @@ parser.add_argument("--fps", type=int, help="FPS for rendering", default=30000)
 parser.add_argument("--scale", type=int, help="Scale of the rendered game", default=1)
 parser.add_argument("--load_model", type=str, help="Load Model Checkpoint", default=None)
 parser.add_argument("--save_path", type=str, help="Path to Save Model Checkpoint", default=None)
+parser.add_argument("--pretrain", type=str, help="Pretrained Encoder from VAE", default=None)
 parser.add_argument("--keep_playing_reward", action="store_true")
 args = parser.parse_args()
 
@@ -53,6 +54,17 @@ def train(env, agent, num_step, optimizer, device):
         to_print = " Episode {} Length {} Mean Length {:.3f} Mean Reward: {:.3f} Actor Loss: {:.6f} Value Loss: {:.3f} Wins: {} Broken WR: {}".format(step, len(states), running_length, running_reward, actor_loss, value_loss, wins, wins1/(step+1))
         print(to_print)
 
+        if step % 1000 == 999:
+            if args.pretrain:
+                optimizer = torch.optim.Adam(
+                    [
+                        {"params": player.cnn_vae.encoder.parameters(), "lr": min(1e-12*pow(10, (step//4999)), 1e-5)},
+                        {"params": player.policy.parameters()},
+                        {"params": player.critic.parameters()},
+                    ],
+                    lr=1e-5,
+                )
+
 # Make the environment
 env = gym.make("WimblepongVisualSimpleAI-v0")
 env.unwrapped.scale = args.scale
@@ -64,14 +76,24 @@ episodes = 100000
 
 # Define the player
 player_id = 1
-# Set up the player here. We used the SimpleAI that does not take actions for now
-# player = wimblepong.SimpleAi(env, player_id)
-# device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-device = torch.device("cpu")
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 player = Agent(3, 32, 128, 2, "vae_19.pkl").to(device)
-optimizer = torch.optim.Adam(player.parameters(), lr=1e-5)
-
-# for param in player.cnn_vae.parameters():
-#     param.requires_grad = False
+if args.pretrain:
+    optimizer = torch.optim.Adam(
+        [
+            {"params": player.policy.parameters()},
+            {"params": player.critic.parameters()},
+        ],
+        lr=1e-5,
+    )
+else:
+    optimizer = torch.optim.Adam(
+        [
+            {"params": player.cnn_vae.encoder.parameters()},
+            {"params": player.policy.parameters()},
+            {"params": player.critic.parameters()},
+        ],
+        lr=1e-5,
+    )
 
 train(env, player, episodes, optimizer, device)

@@ -96,25 +96,24 @@ for epoch in range(num_epochs):
 
         #Save the Trained Model
         torch.save(vae.state_dict(), 'vae_{}.pkl'.format(epoch))
+    # Test the Model
+    with torch.no_grad():
+        loss_ = 0.0
+        bce_ = 0.0
+        kld_ = 0.0
+        for idx, images in enumerate(train_data_loader):
+            images = RESIZE(images)
+            recon_images, mu, logvar = vae(images)
+            loss, bce, kld = loss_fn(recon_images, images, mu, logvar)
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+            loss_ += loss
+            bce_ += bce
+            kld_ += kld
+
+        to_print = "Test Results: Loss: {:.3f} {:.3f} {:.3f}".format(loss_/len(test_data_loader), bce_/len(test_data_loader), kld_/len(test_data_loader))
+        print(to_print)
 
 #Save the Trained Model
 torch.save(vae.state_dict(), 'vae_final.pkl')
-
-# Test the Model
-vae.eval()
-loss_ = 0.0
-bce_ = 0.0
-kld_ = 0.0
-for idx, images in enumerate(train_data_loader):
-    images = RESIZE(images)
-    recon_images, mu, logvar = vae(images)
-    loss, bce, kld = loss_fn(recon_images, images, mu, logvar)
-    optimizer.zero_grad()
-    loss.backward()
-    optimizer.step()
-    loss_ += loss
-    bce_ += bce
-    kld_ += kld
-
-to_print = "Test Results: Loss: {:.3f} {:.3f} {:.3f}".format(loss_/len(test_data_loader), bce_/len(test_data_loader), kld_/len(test_data_loader))
-print(to_print)
