@@ -47,15 +47,17 @@ def roll_out(agent, env, device, headless=True, keep_playing_reward=False):
     entropys = []
     wins = 0
     is_done = False
+    TRANSFORM_IMG = transforms.Compose([
+        # transforms.ToPILImage(),
+        # transforms.Resize(128),
+        transforms.ToTensor()
+        ])
 
     while not is_done:
-        if not headless:
+        if not args.headless:
             env.render()
         states.append(state)
-        if len(state.shape) == 1:
-            action, value, policy_prob = agent.choose_action(torch.tensor(state.copy(), dtype=torch.float32).unsqueeze(0).to(device))
-        else:
-            action, value, policy_prob = agent.choose_action(torch.tensor(state.copy(), dtype=torch.float32).unsqueeze(0).permute(0, 3, 1, 2).to(device))
+        action, value, policy_prob = agent.choose_action(TRANSFORM_IMG(state.copy()).unsqueeze(0).to(device))
         next_state, reward, done, info = env.step(action+1)
         if not done and keep_playing_reward:
             new_reward = compute_keep_playing_reward(len(rewards)+1) + reward
