@@ -54,17 +54,6 @@ def train(env, agent, num_step, optimizer, device):
         to_print = " Episode {} Length {} Mean Length {:.3f} Mean Reward: {:.3f} Actor Loss: {:.6f} Value Loss: {:.3f} Wins: {} Broken WR: {}".format(step, len(states), running_length, running_reward, actor_loss, value_loss, wins, wins1/(step+1))
         print(to_print)
 
-        if step % 1000 == 999:
-            if args.pretrain:
-                optimizer = torch.optim.Adam(
-                    [
-                        {"params": player.cnn_vae.encoder.parameters(), "lr": min(1e-12*pow(10, (step//4999)), 1e-5)},
-                        {"params": player.policy.parameters()},
-                        {"params": player.critic.parameters()},
-                    ],
-                    lr=1e-5,
-                )
-
 # Make the environment
 env = gym.make("WimblepongVisualSimpleAI-v0")
 env.unwrapped.scale = args.scale
@@ -78,22 +67,13 @@ episodes = 100000
 player_id = 1
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 player = Agent(3, 32, 128, 2, args.pretrain).to(device)
-if args.pretrain:
-    optimizer = torch.optim.Adam(
-        [
-            {"params": player.policy.parameters()},
-            {"params": player.critic.parameters()},
-        ],
-        lr=1e-5,
-    )
-else:
-    optimizer = torch.optim.Adam(
-        [
-            {"params": player.cnn_vae.encoder.parameters()},
-            {"params": player.policy.parameters()},
-            {"params": player.critic.parameters()},
-        ],
-        lr=1e-5,
-    )
+optimizer = torch.optim.Adam(
+    [
+        {"params": player.cnn_vae.encoder.parameters()},
+        {"params": player.policy.parameters()},
+        {"params": player.critic.parameters()},
+    ],
+    lr=1e-5,
+)
 
 train(env, player, episodes, optimizer, device)
