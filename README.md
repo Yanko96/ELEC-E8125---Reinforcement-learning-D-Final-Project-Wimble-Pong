@@ -23,3 +23,11 @@ The encoder of the Agent is loaded from the checkpoint of the encoder of the pre
 <div align=center><img src="imgs/visual_pretrained_cnnvae_return.png" width=600></div>
 <div align=center><img src="imgs/visual_pretrained_cnnvae_win_rate.png" width=600></div>
 <div align=center><img src="imgs/visual_agent_test.gif"></div>
+
+## Conclusion
+The pretrained encoder did help accelerate the convergence. However, there are several reasons why I don't recommend doing so:
+1. There's a big gap between reconstructing the observations and predicting reliable actions and q-values. This makes pretrained model not completely plug-and-play for RL tasks. I spent many efforts selecting most suitable checkpoints and learning rates. It's not so worthwhile, especially considering that it only accelerate a relatively small amount of training time, but can hardly boost the performance.
+2. The model structure of VAE is not necessarily the best for RL models. 
+3. Exploration is the most crucial for RL. Not these tricks (that are not helpful for exploration).  
+
+Anyways, it's still an interesting experience for me.
