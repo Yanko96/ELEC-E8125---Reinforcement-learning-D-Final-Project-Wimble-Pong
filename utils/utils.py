@@ -1,6 +1,8 @@
-import torch
 import numpy as np
+import torch
 import torch.nn.functional as F
+import torchvision.transforms as T
+
 
 def compute_keep_playing_reward(length):
     return max(0, int(length-30)/2)
@@ -47,14 +49,12 @@ def roll_out(agent, env, device, headless=True, keep_playing_reward=False):
     entropys = []
     wins = 0
     is_done = False
-    TRANSFORM_IMG = transforms.Compose([
-        # transforms.ToPILImage(),
-        # transforms.Resize(128),
-        transforms.ToTensor()
+    TRANSFORM_IMG = T.Compose([
+        T.ToTensor()
         ])
 
     while not is_done:
-        if not args.headless:
+        if not headless:
             env.render()
         states.append(state)
         action, value, policy_prob = agent.choose_action(TRANSFORM_IMG(state.copy()).unsqueeze(0).to(device))

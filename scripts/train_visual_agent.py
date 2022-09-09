@@ -3,8 +3,8 @@ This is an example on how to use the two player Wimblepong environment with one
 agent and the SimpleAI
 """
 import argparse
-import warnings
 import os
+import warnings
 
 import gym
 import matplotlib.pyplot as plt

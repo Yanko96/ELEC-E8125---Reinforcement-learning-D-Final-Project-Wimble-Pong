@@ -80,8 +80,9 @@ class Encoder(nn.Module):
         self.conv1 = ResDown(channels, ch)  # 64
         self.conv2 = ResDown(ch, 2*ch)  # 32
         self.conv3 = ResDown(2*ch, 4*ch)  # 16
-        self.conv4 = ResDown(4*ch, 8*ch)  # 8
-        self.conv5 = ResDown(8*ch, 8*ch)  # 4
+        self.conv4 = ResDown(4*ch, 4*ch)  # 16
+        self.conv5 = ResDown(4*ch, 8*ch)  # 8
+        self.conv6 = ResDown(8*ch, 8*ch)  # 4
         self.conv_mu = nn.Conv2d(8*ch, z, 2, 2)  # 2
         self.conv_log_var = nn.Conv2d(8*ch, z, 2, 2)  # 2
 
@@ -96,6 +97,7 @@ class Encoder(nn.Module):
         x = self.conv3(x)
         x = self.conv4(x)
         x = self.conv5(x)
+        x = self.conv6(x)
 
         if self.training:
             mu = self.conv_mu(x)
@@ -105,6 +107,20 @@ class Encoder(nn.Module):
             mu = self.conv_mu(x)
             x = mu
             log_var = None
+
+        return x, mu, log_var
+
+    def encode(self, x):
+        x = self.conv1(x)
+        x = self.conv2(x)
+        x = self.conv3(x)
+        x = self.conv4(x)
+        x = self.conv5(x)
+        x = self.conv6(x)
+
+        mu = self.conv_mu(x)
+        x = mu
+        log_var = None
 
         return x, mu, log_var
 
@@ -120,10 +136,11 @@ class Decoder(nn.Module):
         self.conv1 = ResUp(z, ch*8)
         self.conv2 = ResUp(ch*8, ch*8)
         self.conv3 = ResUp(ch*8, ch*4)
-        self.conv4 = ResUp(ch*4, ch*2)
-        self.conv5 = ResUp(ch*2, ch)
-        self.conv6 = ResUp(ch, ch//2)
-        self.conv7 = nn.Conv2d(ch//2, channels, 3, 1, 1)
+        self.conv4 = ResUp(ch*4, ch*4)
+        self.conv5 = ResUp(ch*4, ch*2)
+        self.conv6 = ResUp(ch*2, ch)
+        self.conv7 = ResUp(ch, ch//2)
+        self.conv8 = nn.Conv2d(ch//2, channels, 3, 1, 1)
 
     def forward(self, x):
         x = self.conv1(x)
@@ -133,6 +150,7 @@ class Decoder(nn.Module):
         x = self.conv5(x)
         x = self.conv6(x)
         x = self.conv7(x)
+        x = self.conv8(x)
 
         return x 
 
@@ -191,22 +209,18 @@ class Agent(nn.Module):
         super(Agent, self).__init__()
         self.model_return = []
         self.cnn_vae = RESNET_VAE(image_channels, ch, z_dim)
-        self.policy = PolicyNet(z_dim*3*3, num_action)
-        self.critic = CriticNet(z_dim*3*3)
+        self.policy = PolicyNet(z_dim, num_action)
+        self.critic = CriticNet(z_dim)
         if checkpoint_path:
             self.load_checkpoint(checkpoint_path)
         if vae_checkpoint_path:
             self.cnn_vae.load_state_dict(torch.load(vae_checkpoint_path, map_location=torch.device('cpu')))
     
     def choose_action(self,frame):
-        # latent_codes = self.cnn_vae.forward(frame)
-        x, mu, log_var = self.cnn_vae.encoder(frame)
+        x, mu, log_var = self.cnn_vae.encoder.encode(frame)
         policy_prob = self.policy(mu)
         action = policy_prob.sample()
-        # policy_log_prob = policy_prob.log_prob(action)
-        # policy_log_probs.append(policy_prob.log_prob(action))
         value = self.critic(mu)
-        # self.model_return.append((-categorical.log_prob(action),value))
 
         return action, value, policy_prob
 
@@ -228,10 +242,7 @@ class SimpleAgent(nn.Module):
     def choose_action(self, observation):
         policy_prob = self.policy(observation)
         action = policy_prob.sample()
-        # policy_log_prob = policy_prob.log_prob(action)
-        # policy_log_probs.append(policy_prob.log_prob(action))
         value = self.critic(observation)
-        # self.model_return.append((-categorical.log_prob(action),value))
 
         return action, value, policy_prob
 
