@@ -5,7 +5,7 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 from agent.agent import RESNET_VAE, VAE
-from skimage import io
+from PIL import Image
 from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms, utils
 
@@ -45,7 +45,7 @@ class PongDataset(Dataset):
 
         img_name = os.path.join(self.root_dir,
                                 self.image_list[idx])
-        image = io.imread(img_name)
+        image = Image.open(img_name)
 
         if self.transform:
             image = self.transform(image)
@@ -60,17 +60,18 @@ BATCH_SIZE = 32
 TRAIN_DATA_PATH = "dataset/train"
 TEST_DATA_PATH = "dataset/test"
 TRANSFORM_IMG = transforms.Compose([
+    T.Resize(128),
     transforms.ToTensor()
     ])
-RESIZE = transforms.Resize([256, 256])
 
 train_data = PongDataset(root_dir=TRAIN_DATA_PATH, transform=TRANSFORM_IMG)
 train_data_loader = DataLoader(train_data, batch_size=BATCH_SIZE, shuffle=True)
 test_data = PongDataset(root_dir=TEST_DATA_PATH, transform=TRANSFORM_IMG)
 test_data_loader  = DataLoader(test_data, batch_size=BATCH_SIZE, shuffle=True) 
 
-# vae = VAE(image_channels=3, h_dim=50176, z_dim=512)
-vae = RESNET_VAE(3, 128, 512)
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
+vae = RESNET_VAE(3, 32, 128).to(device)
 
 # Loss and Optimizer
 optimizer = torch.optim.Adam(vae.parameters(), lr=lr) 
@@ -80,8 +81,7 @@ scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=5000, gamma=0.5
 # Train the Model
 for epoch in range(num_epochs):
     for idx, images in enumerate(train_data_loader):
-        images = RESIZE(images)
-        recon_images, mu, logvar = vae(images)
+        recon_images, mu, logvar = vae(images.to(device))
         loss, bce, kld = loss_fn(recon_images, images, mu, logvar)
         # if idx % 50 == 0:
         #     io.imshow(recon_images.detach()[0].permute(1, 2, 0).numpy())
@@ -102,8 +102,7 @@ for epoch in range(num_epochs):
         bce_ = 0.0
         kld_ = 0.0
         for idx, images in enumerate(train_data_loader):
-            images = RESIZE(images)
-            recon_images, mu, logvar = vae(images)
+            recon_images, mu, logvar = vae(images.to(device))
             loss, bce, kld = loss_fn(recon_images, images, mu, logvar)
             optimizer.zero_grad()
             loss.backward()

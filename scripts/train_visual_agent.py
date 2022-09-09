@@ -76,4 +76,6 @@ optimizer = torch.optim.Adam(
     lr=1e-5,
 )
 
+os.makedirs(args.save_path, exist_ok=True)
+
 train(env, player, episodes, optimizer, device)

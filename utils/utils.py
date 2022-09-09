@@ -50,6 +50,8 @@ def roll_out(agent, env, device, headless=True, keep_playing_reward=False):
     wins = 0
     is_done = False
     TRANSFORM_IMG = T.Compose([
+        T.ToPILImage(),
+        T.Resize(128),
         T.ToTensor()
         ])
 
