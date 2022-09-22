@@ -1,12 +1,14 @@
+import threading
+from statistics import mean, stdev
+
+import gym
+import numpy as np
 import torch
-import numpy as np 
-import gym 
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-from statistics import mean,stdev
 from torch.distributions import Categorical
-import threading 
+
 
 class Flatten(nn.Module):
     def forward(self, input):

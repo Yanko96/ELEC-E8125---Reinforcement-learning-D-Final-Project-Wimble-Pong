@@ -271,9 +271,9 @@ class Wimblepong(gym.core.Env):
     def set_names(self, p1=None, p2=None):
         if self.opponent is None:
             # Multiplayer mode; set both
-            if p1 is not None:
+            if p1 != None:
                 self.player1.name = p1
-            if p2 is not None:
+            if p2 != None:
                 self.player2.name = p2
         else:
             # Single; always set the player
@@ -299,7 +299,7 @@ class Wimblepong(gym.core.Env):
 
     def _step_actions(self, actions):
         # Get the opponent's action, if we're in single mode
-        if self.opponent is not None:
+        if self.opponent != None:
             op_action = self.opponent.get_action()
             if self.opponent.player_id == 1:
                 actions = (op_action, actions)
@@ -427,7 +427,7 @@ class Wimblepong(gym.core.Env):
             return self._get_observation(1), self._get_observation(2)
         else:
             # Singleplayer mode only returns the observation depending on which
-            # side the agent is playing. The other player is not getting an
+            # side the agent is playing. The other player != getting an
             # observation
             return self._get_observation(3-self.opponent.player_id)
 
